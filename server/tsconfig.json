@@ -1,0 +1,31 @@
+{
+  // TypeScript 컴파일러의 동작을 정하는 설정 묶음입니다.
+  "compilerOptions": {
+    // 작성한 코드를 2020년 자바스크립트 문법 수준으로 변환합니다.
+    "target": "ES2020",
+    // Node.js가 이해하는 CommonJS 모듈 방식으로 변환합니다.
+    "module": "CommonJS",
+    // Node.js 방식으로 import 파일을 찾습니다.
+    "moduleResolution": "node",
+    // 최신 자바스크립트 기능의 타입 정보를 사용합니다.
+    "lib": ["ES2020"],
+    // 변환된 자바스크립트 파일을 dist 폴더에 저장합니다.
+    "outDir": "dist",
+    // 원본 TypeScript 파일이 들어 있는 폴더를 지정합니다.
+    "rootDir": "src",
+    // 타입이 불분명한 코드를 엄격하게 찾아냅니다.
+    "strict": true,
+    // CommonJS 형식 라이브러리를 편하게 import할 수 있게 합니다.
+    "esModuleInterop": true,
+    // 외부 라이브러리의 타입 오류는 검사하지 않습니다.
+    "skipLibCheck": true,
+    // 파일 이름의 대소문자가 다른 실수를 찾아냅니다.
+    "forceConsistentCasingInFileNames": true,
+    // JSON 파일을 코드에서 읽어 올 수 있게 합니다.
+    "resolveJsonModule": true
+  },
+  // src 폴더의 모든 하위 파일을 컴파일 대상으로 삼습니다.
+  "include": ["src/**/*"],
+  // 설치된 라이브러리와 컴파일 결과물은 대상에서 제외합니다.
+  "exclude": ["node_modules", "dist"]
+}

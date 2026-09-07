@@ -1,0 +1,17 @@
+# npm이 설치하는 라이브러리 폴더
+**/node_modules/
+
+# TypeScript와 Vite가 자동으로 만드는 빌드 결과물
+**/dist/
+**/*.tsbuildinfo
+client/vite.config.js
+client/vite.config.d.ts
+
+# 컴퓨터별 환경 설정 파일은 제외하고 예시 파일만 공유
+**/.env
+**/.env.local
+
+# 운영체제와 편집기가 만드는 개인 설정 파일
+.DS_Store
+Thumbs.db
+.vscode/

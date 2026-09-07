@@ -1,0 +1,33 @@
+{
+  // TypeScript 컴파일러의 동작을 정하는 설정 묶음입니다.
+  "compilerOptions": {
+    // 작성한 코드를 2020년 자바스크립트 문법 수준으로 검사합니다.
+    "target": "ES2020",
+    // 클래스 속성을 최신 자바스크립트 방식으로 처리합니다.
+    "useDefineForClassFields": true,
+    // 브라우저와 최신 자바스크립트가 제공하는 기능의 타입 정보를 사용합니다.
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    // Vite가 처리할 ES 모듈 방식으로 파일을 다룹니다.
+    "module": "ESNext",
+    // 외부 라이브러리의 타입 오류는 검사하지 않아 빌드를 빠르고 안정적으로 합니다.
+    "skipLibCheck": true,
+    // Vite 번들러에 맞는 방식으로 import 파일을 찾습니다.
+    "moduleResolution": "bundler",
+    // import 경로에 TypeScript 확장자를 쓸 수 있게 합니다.
+    "allowImportingTsExtensions": true,
+    // JSON 파일을 코드에서 읽어 올 수 있게 합니다.
+    "resolveJsonModule": true,
+    // 각 파일을 다른 파일과 독립적으로 변환할 수 있게 제한합니다.
+    "isolatedModules": true,
+    // 이 설정 파일은 검사만 하고 자바스크립트 파일은 만들지 않습니다.
+    "noEmit": true,
+    // React JSX 문법을 최신 방식으로 처리합니다.
+    "jsx": "react-jsx",
+    // 타입이 불분명한 코드를 엄격하게 찾아냅니다.
+    "strict": true
+  },
+  // src 폴더 안의 소스 파일을 검사 대상으로 삼습니다.
+  "include": ["src"],
+  // Vite 설정 파일용 별도 TypeScript 설정을 함께 참조합니다.
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
