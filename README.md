@@ -2,6 +2,9 @@
 
 도시 이름을 입력하면 현재 날씨를 보여주는 앱. **Open-Meteo**(무료, API 키 불필요)를
 외부 API로 연동하는 패턴을 연습하기 위한 토이프로젝트입니다.
+클라이언트 측에서 도시를 입력하면 그에 맞게 지오API에서 도시의 좌표를 불러옵니다. 
+그리고 그 좌표에 맞는 날씨정보를 지오API와는 별개의 날씨API에서 해당 좌표(도시)에 맞는 날씨정보를 가져옵니다.
+마지막으로 해당 정보를 클라이언트에 응답시켜주는 구조입니다.
 
 ## 구조
 
@@ -10,7 +13,7 @@ weather-app/
 ├── server/               # Node.js + Express + TypeScript API 서버
 │   └── src/
 │       ├── server.ts       # GET /api/weather?city=서울
-│       └── weatherService.ts  # Open-Meteo 지오코딩 + 날씨 조회
+│       └── weatherService.ts  # Open-Meteo 지오 + 날씨 조회
 └── client/                # React + Vite + TypeScript 프론트엔드
     └── src/
         ├── App.tsx           # 검색창 + 날씨 카드 UI
