@@ -99,13 +99,23 @@ gcloud config set project project-10f832be-9425-40bd-9e1
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com secretmanager.googleapis.com firebasehosting.googleapis.com
 ```
 
-### 2. OpenAI 키를 Secret Manager에 저장
+### 2. Firebase Hosting 연결
+
+Firebase CLI를 통해 이 Google Cloud 프로젝트에 Firebase를 연결합니다. 처음 실행하면
+브라우저 로그인 창이 열립니다.
+
+```powershell
+npx firebase-tools login
+npx firebase-tools projects:addfirebase project-10f832be-9425-40bd-9e1
+```
+
+### 3. OpenAI 키를 Secret Manager에 저장
 
 Cloud Console의 **Secret Manager**에서 `openai-api-key` 비밀 값을 새로 만듭니다.
 새로 발급한 OpenAI API 키를 값으로 입력합니다. 키가 없어도 날씨 앱은 동작하지만,
 약어를 LLM으로 해석하는 기능은 사용되지 않습니다.
 
-### 3. API 서버를 Cloud Run에 배포
+### 4. API 서버를 Cloud Run에 배포
 
 아래 명령은 `server/Dockerfile`로 API를 빌드해 서울 리전에 배포합니다.
 
@@ -116,7 +126,7 @@ gcloud run deploy weather-app-api --source server --region asia-northeast3 --all
 완료되면 표시되는 Cloud Run 서비스 URL을 복사합니다. 예를 들어
 `https://weather-app-api-xxxxx-an.a.run.app` 형태입니다.
 
-### 4. 화면을 Firebase Hosting에 배포
+### 5. 화면을 Firebase Hosting에 배포
 
 Cloud Run URL을 아래 명령의 값으로 바꿔 실행합니다. URL 끝에는 `/`를 붙이지 않습니다.
 
