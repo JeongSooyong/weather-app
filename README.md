@@ -84,7 +84,7 @@ npm run dev
 
 ## 배포: Google Cloud
 
-서버는 Cloud Run, React 화면은 Firebase Hosting에 배포합니다. 프로젝트 ID는
+서버와 React 화면을 각각 Cloud Run에 배포합니다. 프로젝트 ID는
 `project-10f832be-9425-40bd-9e1`입니다. API 키는 GitHub에 올리지 않고 Google Cloud
 Secret Manager에만 저장합니다.
 
@@ -96,51 +96,44 @@ Secret Manager에만 저장합니다.
 ```powershell
 gcloud auth login
 gcloud config set project project-10f832be-9425-40bd-9e1
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com secretmanager.googleapis.com firebasehosting.googleapis.com
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com secretmanager.googleapis.com
 ```
 
-### 2. Firebase Hosting 연결
-
-Firebase CLI를 통해 이 Google Cloud 프로젝트에 Firebase를 연결합니다. 처음 실행하면
-브라우저 로그인 창이 열립니다.
-
-```powershell
-npx firebase-tools login
-npx firebase-tools projects:addfirebase project-10f832be-9425-40bd-9e1
-```
-
-### 3. OpenAI 키를 Secret Manager에 저장
+### 2. OpenAI 키를 Secret Manager에 저장
 
 Cloud Console의 **Secret Manager**에서 `openai-api-key` 비밀 값을 새로 만듭니다.
 새로 발급한 OpenAI API 키를 값으로 입력합니다. 키가 없어도 날씨 앱은 동작하지만,
 약어를 LLM으로 해석하는 기능은 사용되지 않습니다.
 
-### 4. API 서버를 Cloud Run에 배포
+### 3. API 서버를 Cloud Run에 배포
 
 아래 명령은 `server/Dockerfile`로 API를 빌드해 서울 리전에 배포합니다.
 
 ```powershell
-gcloud run deploy weather-app-api --source server --region asia-northeast3 --allow-unauthenticated --set-env-vars "CLIENT_ORIGIN=https://project-10f832be-9425-40bd-9e1.web.app,OPENAI_MODEL=gpt-4o-mini" --set-secrets "OPENAI_API_KEY=openai-api-key:latest"
+gcloud run deploy weather-app-api --source server --region asia-northeast3 --allow-unauthenticated --set-env-vars "OPENAI_MODEL=gpt-4o-mini" --set-secrets "OPENAI_API_KEY=openai-api-key:latest"
 ```
 
 완료되면 표시되는 Cloud Run 서비스 URL을 복사합니다. 예를 들어
 `https://weather-app-api-xxxxx-an.a.run.app` 형태입니다.
 
-### 5. 화면을 Firebase Hosting에 배포
+### 4. 화면을 Cloud Run에 배포
 
-Cloud Run URL을 아래 명령의 값으로 바꿔 실행합니다. URL 끝에는 `/`를 붙이지 않습니다.
+`client/.env.production`에는 API 서버 주소가 이미 설정되어 있습니다. 아래 명령으로
+화면을 Cloud Run에 배포합니다.
 
 ```powershell
-cd client
-$env:VITE_API_URL="https://실제-Cloud-Run-서비스-주소"
-npm.cmd run build
-cd ..
-npx firebase-tools deploy --only hosting --project project-10f832be-9425-40bd-9e1
+gcloud run deploy weather-app-web --source client --region asia-northeast3 --allow-unauthenticated
 ```
 
-배포가 끝나면 `https://project-10f832be-9425-40bd-9e1.web.app`에서 날씨 앱을 사용할 수
-있습니다. `VITE_API_URL`은 브라우저에 공개되는 서버 주소이므로 API 키처럼 비밀 값을
-넣으면 안 됩니다.
+배포가 끝나면 표시되는 `weather-app-web` 서비스 URL을 복사합니다. 그 주소를 API 서버의
+`CLIENT_ORIGIN`으로 설정합니다.
+
+```powershell
+gcloud run services update weather-app-api --region asia-northeast3 --set-env-vars "CLIENT_ORIGIN=https://실제-weather-app-web-주소,OPENAI_MODEL=gpt-4o-mini"
+```
+
+`VITE_API_URL`은 브라우저에 공개되는 API 서버 주소이므로 API 키처럼 비밀 값을 넣으면 안
+됩니다.
 
 ## 설계 포인트
 
