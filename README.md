@@ -145,9 +145,3 @@ gcloud run services update weather-app-api --region asia-northeast3 --set-env-va
 - **CORS 설정**: 프론트(5173)와 백엔드(4000) 포트가 다르므로 `cors` 미들웨어로
   `CLIENT_ORIGIN`만 허용하도록 구성했습니다.
 
-## 확장 아이디어
-
-- 5일 예보(`daily` 파라미터 추가)까지 보여주기
-- 최근 검색한 도시 목록을 로컬 스토리지에 저장
-- 즐겨찾기 도시 등록 기능 (DB 필요 시 URL 단축기 프로젝트의 PostgreSQL 구조 재사용 가능)
-- 배포 시 `server`는 Render/Railway, `client`는 Vercel/Netlify에 각각 배포
