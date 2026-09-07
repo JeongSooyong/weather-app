@@ -64,7 +64,6 @@ export default function App() {
   return (
     // 화면 전체를 감싸고 중앙 정렬과 배경을 담당합니다.
     <div className="page">
-      // 검색창과 결과를 담는 흰색 영역입니다.
       <div className="card">
         {/* 화면의 제목입니다. */}
         <h1>🌦️ 날씨 조회</h1>

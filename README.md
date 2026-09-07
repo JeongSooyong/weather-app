@@ -32,6 +32,10 @@ weather-app/
 
 **사전 요구사항**: Node.js 18 이상 (전역 `fetch` 내장 여부 때문에 필요)
 
+`LA`, `NYC` 같은 도시 약어를 자동으로 정확한 장소로 해석하려면 서버의 `.env`에
+`OPENAI_API_KEY`를 설정합니다. 이 키는 서버에서만 사용하며 GitHub에 올리지 않습니다.
+키가 없거나 OpenAI 호출에 실패한 경우에도 기존 도시 검색은 그대로 동작합니다.
+
 ### 1. 서버 실행
 
 ```bash
@@ -77,6 +81,49 @@ npm run dev
   }
 }
 ```
+
+## 배포: Render + Vercel
+
+이 프로젝트는 서버와 화면을 각각 배포합니다. API 키는 GitHub에 올리지 않고 각
+배포 서비스의 환경 변수 화면에서만 입력합니다.
+
+### 1. API 서버를 Render에 배포
+
+1. [Render](https://render.com)에서 GitHub 계정으로 로그인한 뒤 **New +** →
+  **Blueprint**를 선택합니다.
+2. `JeongSooyong/weather-app` 저장소를 선택합니다. 저장소 최상단의
+  `render.yaml`을 Render가 읽어 서버 설정을 자동으로 만듭니다.
+3. 환경 변수 입력 화면에서 다음 값을 설정합니다.
+
+  | 이름 | 값 |
+  |---|---|
+  | `CLIENT_ORIGIN` | Vercel에서 발급받을 화면 주소. 처음에는 임시 주소여도 됩니다. |
+  | `OPENAI_API_KEY` | 선택 사항. 도시 약어를 LLM으로 해석할 OpenAI API 키 |
+
+4. 배포가 끝나면 `https://weather-app-api.onrender.com`처럼 표시되는 API 주소를
+  복사합니다. 실제 주소는 Render 대시보드에서 확인합니다.
+
+### 2. 화면을 Vercel에 배포
+
+1. [Vercel](https://vercel.com)에서 GitHub 계정으로 로그인한 뒤 **Add New** →
+  **Project**를 선택합니다.
+2. `JeongSooyong/weather-app` 저장소를 Import합니다.
+3. **Root Directory**를 `client`로 지정합니다. Framework Preset은 `Vite`를
+  선택하거나 자동 감지를 그대로 둡니다.
+4. 환경 변수에 아래 값을 추가합니다. 값에는 1단계에서 복사한 실제 Render 주소를
+  넣고, 끝의 `/`는 붙이지 않습니다.
+
+  | 이름 | 값 |
+  |---|---|
+  | `VITE_API_URL` | `https://실제-Render-서버-주소` |
+
+5. **Deploy**를 누릅니다. 배포가 끝나면 Vercel 화면 주소를 복사합니다.
+
+### 3. CORS 주소 완성 및 재배포
+
+Render 환경 변수 `CLIENT_ORIGIN`을 2단계의 실제 Vercel 주소로 바꾸고 저장합니다.
+그다음 Vercel에서 **Redeploy**를 실행합니다. 이제 배포된 화면에서 API 서버로
+날씨 요청을 보낼 수 있습니다.
 
 ## 설계 포인트
 

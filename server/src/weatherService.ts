@@ -6,6 +6,9 @@
  * 참고: Node.js 18 이상이면 fetch가 전역으로 내장되어 있어 별도 라이브러리가 필요 없습니다.
  */
 
+// 도시 약어를 표준 검색어로 해석하는 LLM 함수를 가져옵니다.
+import { resolveCityQuery } from "./cityResolver";
+
 // 도시 이름으로 위치를 찾는 Open-Meteo의 주소입니다.
 const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 // 위도와 경도로 현재 날씨를 가져오는 Open-Meteo의 주소입니다.
@@ -13,6 +16,10 @@ const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
 // 한글 주요 도시를 외부 서비스가 더 잘 찾는 영문 검색어로 바꿉니다.
 const KOREAN_CITY_QUERY_MAP: Record<string, string> = {
+  "LA": "Los Angeles, California, United States",
+  "la": "Los Angeles, California, United States",
+  "SF": "San Francisco, California, United States",
+  "sf": "San Francisco, California, United States",
   "서울": "Seoul",
   "서울특별시": "Seoul",
   "부산": "Busan",
@@ -80,7 +87,15 @@ export interface GeocodeResult {
 // 도시 이름을 받아 위치 정보로 바꾸는 비동기 함수입니다.
 export async function geocodeCity(cityName: string): Promise<GeocodeResult | null> {
   // 한글 주요 도시면 영문 검색어를 쓰고, 그 외에는 입력한 이름을 그대로 씁니다.
-  const searchName = KOREAN_CITY_QUERY_MAP[cityName] ?? cityName;
+  const mappedName = KOREAN_CITY_QUERY_MAP[cityName] ?? cityName;
+  // LLM이 LA 같은 약어를 더 정확한 도시 검색어로 바꿉니다.
+  let searchName = mappedName;
+  try {
+    searchName = await resolveCityQuery(mappedName);
+  } catch (error) {
+    // LLM이 일시적으로 실패해도 날씨 검색 자체는 계속 가능하게 합니다.
+    console.warn("[resolveCityQuery] 원래 검색어를 사용합니다:", error);
+  }
   // 외부 서비스에 보낼 검색 주소를 만듭니다.
   const url = `${GEOCODING_URL}?name=${encodeURIComponent(searchName)}&count=1&language=ko&format=json`;
   // 외부 위치 검색 서비스에 요청하고, 답이 올 때까지 기다립니다.
