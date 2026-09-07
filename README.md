@@ -82,48 +82,55 @@ npm run dev
 }
 ```
 
-## 배포: Render + Vercel
+## 배포: Google Cloud
 
-이 프로젝트는 서버와 화면을 각각 배포합니다. API 키는 GitHub에 올리지 않고 각
-배포 서비스의 환경 변수 화면에서만 입력합니다.
+서버는 Cloud Run, React 화면은 Firebase Hosting에 배포합니다. 프로젝트 ID는
+`project-10f832be-9425-40bd-9e1`입니다. API 키는 GitHub에 올리지 않고 Google Cloud
+Secret Manager에만 저장합니다.
 
-### 1. API 서버를 Render에 배포
+### 1. Google Cloud CLI 준비
 
-1. [Render](https://render.com)에서 GitHub 계정으로 로그인한 뒤 **New +** →
-  **Blueprint**를 선택합니다.
-2. `JeongSooyong/weather-app` 저장소를 선택합니다. 저장소 최상단의
-  `render.yaml`을 Render가 읽어 서버 설정을 자동으로 만듭니다.
-3. 환경 변수 입력 화면에서 다음 값을 설정합니다.
+[Google Cloud CLI](https://cloud.google.com/sdk/docs/install)를 설치한 뒤 PowerShell에서
+로그인하고 프로젝트를 지정합니다.
 
-  | 이름 | 값 |
-  |---|---|
-  | `CLIENT_ORIGIN` | Vercel에서 발급받을 화면 주소. 처음에는 임시 주소여도 됩니다. |
-  | `OPENAI_API_KEY` | 선택 사항. 도시 약어를 LLM으로 해석할 OpenAI API 키 |
+```powershell
+gcloud auth login
+gcloud config set project project-10f832be-9425-40bd-9e1
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com secretmanager.googleapis.com firebasehosting.googleapis.com
+```
 
-4. 배포가 끝나면 `https://weather-app-api.onrender.com`처럼 표시되는 API 주소를
-  복사합니다. 실제 주소는 Render 대시보드에서 확인합니다.
+### 2. OpenAI 키를 Secret Manager에 저장
 
-### 2. 화면을 Vercel에 배포
+Cloud Console의 **Secret Manager**에서 `openai-api-key` 비밀 값을 새로 만듭니다.
+새로 발급한 OpenAI API 키를 값으로 입력합니다. 키가 없어도 날씨 앱은 동작하지만,
+약어를 LLM으로 해석하는 기능은 사용되지 않습니다.
 
-1. [Vercel](https://vercel.com)에서 GitHub 계정으로 로그인한 뒤 **Add New** →
-  **Project**를 선택합니다.
-2. `JeongSooyong/weather-app` 저장소를 Import합니다.
-3. **Root Directory**를 `client`로 지정합니다. Framework Preset은 `Vite`를
-  선택하거나 자동 감지를 그대로 둡니다.
-4. 환경 변수에 아래 값을 추가합니다. 값에는 1단계에서 복사한 실제 Render 주소를
-  넣고, 끝의 `/`는 붙이지 않습니다.
+### 3. API 서버를 Cloud Run에 배포
 
-  | 이름 | 값 |
-  |---|---|
-  | `VITE_API_URL` | `https://실제-Render-서버-주소` |
+아래 명령은 `server/Dockerfile`로 API를 빌드해 서울 리전에 배포합니다.
 
-5. **Deploy**를 누릅니다. 배포가 끝나면 Vercel 화면 주소를 복사합니다.
+```powershell
+gcloud run deploy weather-app-api --source server --region asia-northeast3 --allow-unauthenticated --set-env-vars "CLIENT_ORIGIN=https://project-10f832be-9425-40bd-9e1.web.app,OPENAI_MODEL=gpt-4o-mini" --set-secrets "OPENAI_API_KEY=openai-api-key:latest"
+```
 
-### 3. CORS 주소 완성 및 재배포
+완료되면 표시되는 Cloud Run 서비스 URL을 복사합니다. 예를 들어
+`https://weather-app-api-xxxxx-an.a.run.app` 형태입니다.
 
-Render 환경 변수 `CLIENT_ORIGIN`을 2단계의 실제 Vercel 주소로 바꾸고 저장합니다.
-그다음 Vercel에서 **Redeploy**를 실행합니다. 이제 배포된 화면에서 API 서버로
-날씨 요청을 보낼 수 있습니다.
+### 4. 화면을 Firebase Hosting에 배포
+
+Cloud Run URL을 아래 명령의 값으로 바꿔 실행합니다. URL 끝에는 `/`를 붙이지 않습니다.
+
+```powershell
+cd client
+$env:VITE_API_URL="https://실제-Cloud-Run-서비스-주소"
+npm.cmd run build
+cd ..
+npx firebase-tools deploy --only hosting --project project-10f832be-9425-40bd-9e1
+```
+
+배포가 끝나면 `https://project-10f832be-9425-40bd-9e1.web.app`에서 날씨 앱을 사용할 수
+있습니다. `VITE_API_URL`은 브라우저에 공개되는 서버 주소이므로 API 키처럼 비밀 값을
+넣으면 안 됩니다.
 
 ## 설계 포인트
 
